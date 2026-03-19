@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}PhdEd Dashboard{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/nalika-icon.css' %}">
+    <link rel="stylesheet" href="{% static 'nalika/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/form/all-type-forms.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="left-sidebar-pro">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <a href="{% url 'phded_app:dashboard' %}"><span class="main-logo text-white fw-bold" style="font-size:1.5rem;">PhdEd</span></a>
+            </div>
+            {% if request.session.role == 'admin' %}
+            <div class="left-custom-menu-adp-wrap comment-scrollbar">
+                <nav class="sidebar-nav left-sidebar-menu-pro">
+                    <ul class="metismenu" id="menu1">
+                        <li class="active">
+                            <a href="{% url 'phded_app:dashboard' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-speedometer2 icon-wrap"></i>
+                                <span class="mini-click-non">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'phded_app:create_user' %}?role=student" class="phded-ajax-link">
+                                <i class="bi big-icon bi-person-plus icon-wrap"></i>
+                                <span class="mini-click-non">Add Student</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'phded_app:create_user' %}?role=professor" class="phded-ajax-link">
+                                <i class="bi big-icon bi-person-badge icon-wrap"></i>
+                                <span class="mini-click-non">Add Professor</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'phded_app:user_list' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-people icon-wrap"></i>
+                                <span class="mini-click-non">Users</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'phded_app:admin_course_list' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-journal-bookmark icon-wrap"></i>
+                                <span class="mini-click-non">Courses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {% elif request.session.role == 'professor' %}
+            <div class="left-custom-menu-adp-wrap comment-scrollbar">
+                <nav class="sidebar-nav left-sidebar-menu-pro">
+                    <ul class="metismenu" id="menu1">
+                        <li>
+                            <a href="{% url 'phded_app:professor_dashboard' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-journal-text icon-wrap"></i>
+                                <span class="mini-click-non">My courses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {% elif request.session.role == 'student' %}
+            <div class="left-custom-menu-adp-wrap comment-scrollbar">
+                <nav class="sidebar-nav left-sidebar-menu-pro">
+                    <ul class="metismenu" id="menu1">
+                        <li>
+                            <a href="{% url 'phded_app:student_dashboard' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-journal-text icon-wrap"></i>
+                                <span class="mini-click-non">My courses</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </nav>
+    </div>
+    <div class="all-content-wrapper">
+        {% include 'partials/header.html' %}
+        {% block breadcrumb_area %}
+        <div class="breadcome-area" id="phded-breadcrumb-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcome-list">
+                            <div class="breadcomb-wp">
+                                <div class="breadcomb-icon"><i class="bi bi-grid-1x2-fill"></i></div>
+                                <div class="breadcomb-ctn">
+                                    <h2 id="phded-breadcrumb-title">{% block breadcrumb_title %}Dashboard{% endblock %}</h2>
+                                    <p id="phded-breadcrumb-subtitle">{% block breadcrumb_subtitle %}PhdEd Admin{% endblock %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+        <div class="section-admin container-fluid" id="phded-main-content">
+            {% block content %}{% endblock %}
+        </div>
+        {% include 'partials/footer.html' %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/metisMenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'js/metisMenu/metisMenu-active.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/phded-ajax.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

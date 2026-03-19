@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Login | PhdEd</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; min-height: 100vh; display: flex; }
+        .login-left {
+            width: 70%; min-height: 100vh; position: relative; display: flex; align-items: center; justify-content: center;
+            background: url("{% static 'images/class.jpg' %}") center center no-repeat;
+            background-size: cover;
+        }
+        .login-left-overlay {
+            position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: 0;
+        }
+        .login-left-inner { position: absolute; top: 24px; left: 24px; display: flex; align-items: center; gap: 10px; z-index: 1; }
+        .login-logo-text { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .login-logo-text span { color: #03a9f4; }
+        .login-left-copy {
+            position: relative; z-index: 1; text-align: center; padding: 2rem; max-width: 480px;
+        }
+        .login-left-copy h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 700; color: #fff; line-height: 1.3;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.4); margin-bottom: 1rem;
+        }
+        .login-left-copy h1 .accent { color: #03a9f4; }
+        .login-left-copy p {
+            font-size: 1rem; color: rgba(255,255,255,0.9); line-height: 1.6;
+            text-shadow: 0 1px 10px rgba(0,0,0,0.3);
+        }
+        .login-right {
+            width: 30%; min-height: 100vh; background: #152036; display: flex; align-items: center; justify-content: center; padding: 2rem;
+        }
+        .login-form-wrap { width: 100%; max-width: 360px; }
+        .login-form-wrap .form-control {
+            background: #1b2a47; border: 1px solid #253a5c; color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 14px;
+        }
+        .login-form-wrap .form-control:focus {
+            border-color: #03a9f4; box-shadow: 0 0 0 2px rgba(3,169,244,0.15); background: #1b2a47; color: #fff;
+        }
+        .login-form-wrap .form-control::placeholder { color: #6c7a8d; }
+        .login-form-wrap .form-label { color: #8a9bb5; font-size: 13px; font-weight: 500; }
+        .login-form-wrap select.form-control { cursor: pointer; }
+        .btn-phded { background: #03a9f4; border: none; color: #fff; border-radius: 8px; padding: 10px; font-weight: 500; font-size: 15px; width: 100%; }
+        .btn-phded:hover { background: #0290d1; color: #fff; }
+        .login-error { color: #ec4445; font-size: 13px; margin-top: 8px; }
+        @media (max-width: 992px) {
+            body { flex-direction: column; }
+            .login-left { width: 100%; min-height: 35vh; }
+            .login-left-copy { padding: 1.5rem; }
+            .login-right { width: 100%; min-height: 60vh; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-left">
+        <div class="login-left-overlay" aria-hidden="true"></div>
+        <div class="login-left-inner">
+            <span class="login-logo-text">Ph<span>d</span>Ed</span>
+        </div>
+        <div class="login-left-copy">
+            <h1>Where learning meets <span class="accent">excellence</span></h1>
+            <p>Collaborate, discover, and grow. PhdEd connects students and educators in a single platform built for higher education.</p>
+        </div>
+    </div>
+    <div class="login-right">
+        <div class="login-form-wrap">
+            <h2 class="text-white mb-2" style="font-size:1.5rem;">Sign in</h2>
+            <p class="text-secondary mb-4" style="font-size:14px;">Enter your credentials to continue.</p>
+            <form id="loginForm" method="post" action="{% url 'phded_app:login' %}" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="id_email">Email</label>
+                    <input type="email" id="id_email" name="email" class="form-control" placeholder="you@example.com" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}<div class="login-error">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_password">Password</label>
+                    <input type="password" id="id_password" name="password" class="form-control" placeholder="Password" required>
+                    {% if form.password.errors %}<div class="login-error">{{ form.password.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="id_role">Role</label>
+                    <select id="id_role" name="role" class="form-control" required>
+                        <option value="">Select role</option>
+                        <option value="student" {% if form.role.value == 'student' %}selected{% endif %}>Student</option>
+                        <option value="professor" {% if form.role.value == 'professor' %}selected{% endif %}>Professor</option>
+                        <option value="admin" {% if form.role.value == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                    {% if form.role.errors %}<div class="login-error">{{ form.role.errors.0 }}</div>{% endif %}
+                </div>
+                <div id="login-error" class="login-error mb-2" {% if not error_message %}style="display:none;"{% endif %}>{% if error_message %}{{ error_message }}{% endif %}</div>
+                <button type="submit" class="btn btn-phded" id="login-submit-btn">Sign In</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function ($) {
+        $('#loginForm').on('submit', function (e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $err = $('#login-error');
+            var $btn = $('#login-submit-btn');
+            $err.hide().text('');
+            $form.find('.login-field-error').remove();
+            $btn.prop('disabled', true);
+            $.ajax({
+                url: $form.attr('action'),
+                method: 'POST',
+                data: $form.serialize(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success && data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    $err.text(data.error || 'Login failed.').show();
+                    $btn.prop('disabled', false);
+                },
+                error: function (xhr) {
+                    var d = xhr.responseJSON;
+                    if (d && d.errors) {
+                        $.each(d.errors, function (field, msgs) {
+                            var msg = Array.isArray(msgs) ? msgs[0] : msgs;
+                            $form.find('[name="' + field + '"]').closest('.mb-3').append('<div class="login-field-error login-error">' + msg + '</div>');
+                        });
+                    }
+                    $err.text((d && d.error) ? d.error : 'Login failed.').show();
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+    })(jQuery);
+    </script>
+</body>
+</html>

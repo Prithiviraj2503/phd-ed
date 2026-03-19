@@ -1,0 +1,17 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Welcome | PhdEd{% endblock %}
+{% block breadcrumb_title %}Welcome{% endblock %}
+{% block breadcrumb_subtitle %}You are logged in{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="white-box text-center py-5" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 3rem !important; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="text-white mb-2">Hello, {{ user_name }}.</h3>
+            <p class="text-secondary mb-0">You are logged in as <strong>{{ role|title }}</strong>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

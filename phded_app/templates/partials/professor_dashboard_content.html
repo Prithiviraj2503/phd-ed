@@ -1,0 +1,36 @@
+{% load static %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="white-box phded-user-hero" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="phded-section-icon">
+                    <i class="bi bi-person-workspace"></i>
+                </div>
+                <div>
+                    <h3 class="box-title mb-1">My Courses</h3>
+                    <p class="text-secondary mb-0">Courses assigned to you for teaching.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="row g-3">
+            {% for c in courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="white-box phded-ajax-link" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.25rem; border: 1px solid var(--nk-border-subtle); cursor: pointer;" data-href="{% url 'phded_app:professor_course_detail' c.id %}">
+                    <a href="{% url 'phded_app:professor_course_detail' c.id %}" class="phded-ajax-link text-decoration-none text-white">
+                        <h5 class="mb-1">{{ c.name }}</h5>
+                        <small class="text-secondary">{{ c.code|default:"" }} {{ c.department.name }}</small>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="white-box text-center py-4" style="background: var(--nk-bg-surface); border: 1px solid var(--nk-border-subtle);">
+                    <p class="text-secondary mb-0">No courses assigned yet. Ask admin to create a course and assign you as professor.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

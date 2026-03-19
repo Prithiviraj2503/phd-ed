@@ -1,0 +1,43 @@
+{% load static %}
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-4">Create course</h3>
+            <form id="phded-admin-course-form" method="post" action="{% url 'phded_app:admin_course_create' %}" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="id_name">Course name</label>
+                    <input type="text" id="id_name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" required>
+                    <div class="form-field-error text-danger small" data-field="name"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_code">Code (optional)</label>
+                    <input type="text" id="id_code" name="code" class="form-control" value="{{ form.code.value|default:'' }}">
+                    <div class="form-field-error text-danger small" data-field="code"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_department">Department</label>
+                    <select id="id_department" name="department" class="form-control" required>
+                        <option value="">Select department</option>
+                        {% for d in form.department.field.queryset %}
+                        <option value="{{ d.pk }}" {% if form.department.value == d.pk %}selected{% endif %}>{{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-field-error text-danger small" data-field="department"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="id_professor">Professor</label>
+                    <select id="id_professor" name="professor" class="form-control" required>
+                        <option value="">Select professor</option>
+                        {% for u in form.professor.field.queryset %}
+                        <option value="{{ u.pk }}" {% if form.professor.value == u.pk %}selected{% endif %}>{{ u.get_full_name|default:u.email }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-field-error text-danger small" data-field="professor"></div>
+                </div>
+                <button type="submit" class="btn" style="background: var(--nk-accent-blue); color: #fff; border: none;">Create course</button>
+                <a href="{% url 'phded_app:admin_course_list' %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

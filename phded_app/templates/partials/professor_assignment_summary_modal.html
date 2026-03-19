@@ -1,0 +1,79 @@
+<div class="modal-header" style="border-color: var(--nk-border-subtle);">
+    <div>
+        <h5 class="modal-title mb-1">{{ assignment.title }} Summary</h5>
+        <p class="text-secondary small mb-0">{{ course.name }} - {{ course.department.name }}</p>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="white-box" style="background: rgba(255,255,255,0.02); border-radius: var(--nk-radius-lg); padding: 1rem; border: 1px solid var(--nk-border-subtle);">
+                <div class="text-secondary small">Students Taken</div>
+                <div class="fs-3 fw-bold">{{ submitted_count }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="white-box" style="background: rgba(255,255,255,0.02); border-radius: var(--nk-radius-lg); padding: 1rem; border: 1px solid var(--nk-border-subtle);">
+                <div class="text-secondary small">Pending</div>
+                <div class="fs-3 fw-bold">{{ pending_count }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="white-box" style="background: rgba(255,255,255,0.02); border-radius: var(--nk-radius-lg); padding: 1rem; border: 1px solid var(--nk-border-subtle);">
+                <div class="text-secondary small">Total Students</div>
+                <div class="fs-3 fw-bold">{{ students|length }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <h6 class="mb-0">Student Scores</h6>
+            <a href="{% url 'phded_app:professor_assignment_summary_export' course.id assignment.id %}" class="btn btn-sm btn-outline-success">Download Excel</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Max Score</th>
+                        <th>Submitted At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary_rows %}
+                    <tr>
+                        <td>{{ row.student.get_full_name|default:row.student.username }}</td>
+                        <td>{{ row.student.email }}</td>
+                        <td>
+                            {% if row.submitted %}
+                            <span class="badge bg-success">Taken</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.score }}</td>
+                        <td>{{ row.max_score }}</td>
+                        <td>{% if row.attempt and row.attempt.submitted_at %}{{ row.attempt.submitted_at|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-info phded-student-response-btn" data-response-url="{% url 'phded_app:professor_assignment_student_response' course.id assignment.id row.student.id %}">See Response</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center text-secondary">No student data available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="phdedStudentResponseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" id="phdedStudentResponseContent" style="background: var(--nk-bg-surface); color: var(--nk-text-primary); border: 1px solid var(--nk-border-subtle);">
+        </div>
+    </div>
+</div>

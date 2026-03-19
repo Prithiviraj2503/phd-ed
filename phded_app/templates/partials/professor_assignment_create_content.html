@@ -1,0 +1,84 @@
+{% load static %}
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-4">Create assignment - {{ course.name }}</h3>
+            <p class="text-secondary small mb-3">Generate 20 MCQs from uploaded course content Word files or upload an Excel file with columns: Question, Option1, Option2, Option3, Option4, Answer, Difficulty. Scoring uses difficulty: easy=1, medium=2, hard=3.</p>
+            <div id="phded-assignment-create-message" class="alert mb-3" style="display:none;"></div>
+            <form id="phded-assignment-create-form" method="post" action="{% url 'phded_app:professor_assignment_create' course.id %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="id_title">Assignment title</label>
+                    <input type="text" id="id_title" name="title" class="form-control" value="{{ form.title.value|default:'' }}" required>
+                    <div class="form-field-error text-danger small" data-field="title"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Source</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="source_type" value="docx" class="me-1" {% if form.source_type.value == 'docx' or not form.source_type.value %}checked{% endif %}> Uploaded course content Word file</label>
+                        <label><input type="radio" name="source_type" value="excel" class="me-1" {% if form.source_type.value == 'excel' %}checked{% endif %}> Excel (qn, opt1, opt2, opt3, opt4, answer)</label>
+                    </div>
+                    <div class="form-field-error text-danger small" data-field="source_type"></div>
+                </div>
+                <div class="mb-3" id="wrap-docx">
+                    <label class="form-label" for="id_content_source">Uploaded course content</label>
+                    <select id="id_content_source" name="content_source" class="form-control">
+                        <option value="">Select uploaded course content</option>
+                        {% for item in form.content_source.field.queryset %}
+                        <option value="{{ item.pk }}" {% if form.content_source.value|stringformat:"s" == item.pk|stringformat:"s" %}selected{% endif %}>{{ item.title }}{% if item.file %} ({{ item.file.name|cut:"course_contents/" }}){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-field-error text-danger small" data-field="content_source"></div>
+                    <p class="text-secondary small mt-2 mb-0">Choose one of the Word `.docx` files already uploaded under this course.</p>
+                </div>
+                <div class="mb-4" id="wrap-excel" style="display:none;">
+                    <label class="form-label" for="id_excel_file">Excel file</label>
+                    <input type="file" id="id_excel_file" name="excel_file" class="form-control" accept=".xlsx,.xls">
+                    <div class="form-field-error text-danger small" data-field="excel_file"></div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-dark table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Option1</th>
+                                    <th>Option2</th>
+                                    <th>Option3</th>
+                                    <th>Option4</th>
+                                    <th>Answer</th>
+                                    <th>Difficulty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>What is an AI agent?</td>
+                                    <td>A system that perceives and acts</td>
+                                    <td>A database server</td>
+                                    <td>A hardware sensor</td>
+                                    <td>A static report</td>
+                                    <td>A system that perceives and acts</td>
+                                    <td>easy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-secondary small mt-2 mb-0">Answer can be `1-4`, `A-D`, or the exact option text. Difficulty should be `easy`, `medium`, or `hard`.</p>
+                </div>
+                <button type="submit" class="btn" style="background: var(--nk-accent-blue); color: #fff; border: none;">Create assignment</button>
+                <a href="{% url 'phded_app:professor_course_detail' course.id %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function($){
+    function toggleSourceFields() {
+        var v = $('input[name="source_type"]:checked').val();
+        $('#wrap-docx').toggle(v === 'docx');
+        $('#wrap-excel').toggle(v === 'excel');
+    }
+    $('input[name="source_type"]').on('change', function(){
+        toggleSourceFields();
+    });
+    toggleSourceFields();
+})($);
+</script>

@@ -1,0 +1,65 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} | PhdEd{% endblock %}
+{% block breadcrumb_title %}{{ page_title }}{% endblock %}
+{% block breadcrumb_subtitle %}Create new {{ user_role }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-4">{{ page_title }}</h3>
+            <div id="phded-create-user-message" class="mb-3" style="display:none;"></div>
+            <form id="phded-create-user-form" method="post" action="{% url 'phded_app:create_user' %}" novalidate data-role="{{ user_role }}">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="{{ user_role }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_first_name">First name</label>
+                        <input type="text" id="id_first_name" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="first_name">{% if form.first_name.errors %}{{ form.first_name.errors.0 }}{% endif %}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_last_name">Last name</label>
+                        <input type="text" id="id_last_name" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="last_name">{% if form.last_name.errors %}{{ form.last_name.errors.0 }}{% endif %}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_email">Email</label>
+                        <input type="email" id="id_email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="email">{% if form.email.errors %}{{ form.email.errors.0 }}{% endif %}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_phone">Phone</label>
+                        <input type="text" id="id_phone" name="phone" class="form-control" value="{{ form.phone.value|default:'' }}" placeholder="Optional">
+                        <div class="form-field-error text-danger small" data-field="phone">{% if form.phone.errors %}{{ form.phone.errors.0 }}{% endif %}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_department">Department</label>
+                        {% if user_role == 'student' %}
+                        <select id="id_department" name="department" class="form-control" required>
+                            <option value="">Select department (IT/CSE)</option>
+                            {% for d in form.department.field.queryset %}
+                            <option value="{{ d.pk }}" {% if form.department.value == d.pk %}selected{% endif %}>{{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <p class="form-text small text-secondary mb-0">Student will see courses under this department.</p>
+                        {% else %}
+                        <input type="text" id="id_department" name="department" class="form-control" value="{{ form.department.value|default:'' }}" placeholder="Optional">
+                        {% endif %}
+                        <div class="form-field-error text-danger small" data-field="department">{% if form.department.errors %}{{ form.department.errors.0 }}{% endif %}</div>
+                    </div>
+                    <div class="col-12">
+                        <p class="text-secondary small mb-0">A random password will be generated and sent to the user's email.</p>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <button type="submit" class="btn" style="background: var(--nk-accent-blue); color: #fff; border: none;">Create {{ user_role|title }}</button>
+                        <a href="{% url 'phded_app:dashboard' %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

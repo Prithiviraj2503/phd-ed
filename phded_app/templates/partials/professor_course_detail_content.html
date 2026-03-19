@@ -1,0 +1,78 @@
+{% load static %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="white-box phded-user-hero" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="phded-section-icon">
+                        <i class="bi bi-journal-richtext"></i>
+                    </div>
+                    <div>
+                        <h3 class="box-title mb-1">{{ course.name }}</h3>
+                        <p class="text-secondary mb-0">{{ course.department.name }} - Contents and assignments</p>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'phded_app:professor_upload_content' course.id %}" class="btn btn-sm phded-ajax-link" style="background: var(--nk-accent-teal); color: #fff; border: none;">Upload content</a>
+                    <a href="{% url 'phded_app:professor_assignment_create' course.id %}" class="btn btn-sm phded-ajax-link" style="background: var(--nk-accent-blue); color: #fff; border: none;">Create assignment</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+                    <h5 class="mb-3">Course contents</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for content in course.contents.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background: transparent; border-color: var(--nk-border-subtle); color: var(--nk-text-primary);">
+                            {{ content.title }}
+                            {% if content.file %}<a href="{{ content.file.url }}" target="_blank" class="badge bg-secondary">Download</a>{% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item" style="background: transparent; color: var(--nk-text-muted);">No contents yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+                    <h5 class="mb-3">Assignments</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for a in course.assignments.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-wrap" style="background: transparent; border-color: var(--nk-border-subtle); color: var(--nk-text-primary);">
+                            <div>
+                                <a href="{% url 'phded_app:professor_assignment_detail' course.id a.id %}" class="phded-ajax-link text-white text-decoration-none">{{ a.title }}</a>
+                                <div class="mt-1 d-flex gap-2 flex-wrap">
+                                    <span class="badge bg-info">{{ a.questions.count }} Q</span>
+                                    {% if a.is_launched %}
+                                    <span class="badge bg-success">Launched</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                {% if a.is_launched %}
+                                <button type="button" class="btn btn-sm btn-outline-info phded-assignment-summary-btn" data-summary-url="{% url 'phded_app:professor_assignment_summary' course.id a.id %}">Summary</button>
+                                {% else %}
+                                <button type="button" class="btn btn-sm" style="background: var(--nk-accent-teal); color: #fff; border: none;" data-launch-url="{% url 'phded_app:professor_assignment_launch' course.id a.id %}" onclick="phdedLaunchAssignment(this)">Launch</button>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item" style="background: transparent; color: var(--nk-text-muted);">No assignments yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="phdedAssignmentSummaryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" id="phdedAssignmentSummaryContent" style="background: var(--nk-bg-surface); color: var(--nk-text-primary); border: 1px solid var(--nk-border-subtle);">
+        </div>
+    </div>
+</div>

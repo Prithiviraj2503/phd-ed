@@ -1,0 +1,25 @@
+{% load static %}
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-4">Upload content - {{ course.name }}</h3>
+            <div id="phded-upload-content-message" class="alert mb-3" style="display:none;"></div>
+            <form id="phded-upload-content-form" method="post" action="{% url 'phded_app:professor_upload_content' course.id %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="id_title">Title</label>
+                    <input type="text" id="id_title" name="title" class="form-control" value="{{ form.title.value|default:'' }}" required>
+                    <div class="form-field-error text-danger small" data-field="title"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="id_file">Word file (optional)</label>
+                    <input type="file" id="id_file" name="file" class="form-control" accept=".docx">
+                    <div class="form-field-error text-danger small" data-field="file"></div>
+                    <p class="text-secondary small mt-2 mb-0">Only Word `.docx` files are supported for AI-based assessment generation.</p>
+                </div>
+                <button type="submit" class="btn" style="background: var(--nk-accent-blue); color: #fff; border: none;">Upload</button>
+                <a href="{% url 'phded_app:professor_course_detail' course.id %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

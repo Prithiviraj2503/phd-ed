@@ -1,0 +1,15 @@
+{% load static %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="white-box text-center py-4" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem !important; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-3">{{ assignment.title }}</h3>
+            <p class="text-secondary mb-2">Course: {{ course.name }}</p>
+            <h2 class="mb-2" style="color: var(--nk-accent-teal);">{{ score }} <small class="text-secondary">/ {{ max_score }}</small></h2>
+            <p class="text-secondary small mb-0">Weighted score (easy=1, medium=2, hard=3)</p>
+            {% if max_score %}
+            <p class="mt-2 mb-0"><span class="badge bg-info">{{ percentage }}%</span> of max weighted score</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'phded_app:student_course_detail' course.id %}" class="btn btn-outline-secondary mt-3 phded-ajax-link">Back to course</a>
+    </div>
+</div>

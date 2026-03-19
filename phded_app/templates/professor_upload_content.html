@@ -1,0 +1,10 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Upload content | PhdEd{% endblock %}
+{% block breadcrumb_title %}Upload content{% endblock %}
+{% block breadcrumb_subtitle %}{{ course.name }}{% endblock %}
+
+{% block content %}
+{% include 'partials/professor_upload_content_content.html' %}
+{% endblock %}

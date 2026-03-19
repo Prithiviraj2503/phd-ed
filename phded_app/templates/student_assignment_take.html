@@ -1,0 +1,10 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}{{ assignment.title }} | PhdEd{% endblock %}
+{% block breadcrumb_title %}{{ assignment.title }}{% endblock %}
+{% block breadcrumb_subtitle %}Take test{% endblock %}
+
+{% block content %}
+{% include 'partials/student_assignment_take_content.html' %}
+{% endblock %}

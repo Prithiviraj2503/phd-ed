@@ -1,0 +1,76 @@
+<div class="modal-header" style="border-color: var(--nk-border-subtle);">
+    <div>
+        <h5 class="modal-title mb-1">{{ student.get_full_name|default:student.username }} Response</h5>
+        <p class="text-secondary small mb-0">{{ assignment.title }} - {{ course.name }}</p>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="white-box" style="background: rgba(255,255,255,0.02); border-radius: var(--nk-radius-lg); padding: 1rem; border: 1px solid var(--nk-border-subtle);">
+                <div class="text-secondary small">Student</div>
+                <div class="fw-bold">{{ student.get_full_name|default:student.username }}</div>
+                <div class="text-secondary small">{{ student.email }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="white-box" style="background: rgba(255,255,255,0.02); border-radius: var(--nk-radius-lg); padding: 1rem; border: 1px solid var(--nk-border-subtle);">
+                <div class="text-secondary small">Status</div>
+                <div class="fw-bold">
+                    {% if summary_row and summary_row.submitted %}Taken{% else %}Pending{% endif %}
+                </div>
+                <div class="text-secondary small">
+                    {% if summary_row and summary_row.attempt and summary_row.attempt.submitted_at %}
+                    {{ summary_row.attempt.submitted_at|date:"M d, Y H:i" }}
+                    {% else %}
+                    Not submitted yet
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="white-box" style="background: rgba(255,255,255,0.02); border-radius: var(--nk-radius-lg); padding: 1rem; border: 1px solid var(--nk-border-subtle);">
+                <div class="text-secondary small">Score</div>
+                <div class="fw-bold">
+                    {% if summary_row %}{{ summary_row.score }} / {{ summary_row.max_score }}{% else %}0 / 0{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <h6 class="mb-2">Individual Answer Tracking</h6>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Selected</th>
+                    <th>Correct Answer</th>
+                    <th>Correct?</th>
+                    <th>Difficulty</th>
+                    <th>Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in answer_rows %}
+                <tr>
+                    <td>{{ row.question.question_text }}</td>
+                    <td>{{ row.selected_text|default:"-" }}</td>
+                    <td>{{ row.correct_text }}</td>
+                    <td>
+                        {% if row.is_correct %}
+                        <span class="badge bg-success">Yes</span>
+                        {% else %}
+                        <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ row.question.get_difficulty_display }}</td>
+                    <td>{{ row.question.score_weight }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-secondary">No response available for this student yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

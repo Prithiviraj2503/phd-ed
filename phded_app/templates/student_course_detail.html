@@ -1,0 +1,11 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}{{ course.name }} | PhdEd{% endblock %}
+{% block breadcrumb_title %}{{ course.name }}{% endblock %}
+{% block breadcrumb_subtitle %}Assignments{% endblock %}
+{% block breadcrumb_area %}{% endblock %}
+
+{% block content %}
+{% include 'partials/student_course_detail_content.html' %}
+{% endblock %}

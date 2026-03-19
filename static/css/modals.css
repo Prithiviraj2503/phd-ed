@@ -1,0 +1,244 @@
+/****** Bootstrap Modal *****/
+.modal-area-button .mg-b-10{
+	margin-bottom:var(--nk-space-2);
+}
+.adminpro-modal-pos{
+	position:relative;
+}
+.modal-close-area{
+	position: absolute;
+    right: -30px;
+    top: -20px;
+}
+.modal-close-area.modal-close-df{
+    right: -22px;
+}
+.modal-dialog {
+    margin: var(--nk-space-12) auto;
+}
+.modal-close-area .btn-close{
+	opacity: 1;
+	background-color: var(--nk-accent-blue);
+	background-size: 0.65em;
+	height: 30px;
+	width: 30px;
+	display: block;
+	border-radius: 50%;
+	padding: 0;
+}
+.modal-close-area .btn-close:hover{
+	opacity: 0.85;
+}
+.modal-clickable{
+	text-align:center;
+}
+.modal-clickable p{
+	background:var(--nk-bg-surface);
+	font-size:var(--nk-font-base);
+	padding:var(--nk-space-4) var(--nk-space-5);
+}
+.modal-clickable a{
+	text-decoration:underline;
+	color:var(--nk-accent-blue);
+}
+.modal-adminpro-general .modal-content{
+	border-radius:var(--nk-radius-md);
+}
+.modal-adminpro-general .modal-footer{
+	border-top:0px solid var(--nk-border-default);
+}
+.modal-adminpro-general .modal-body{
+	text-align:center;
+	padding:var(--nk-space-12);
+}
+.modal-adminpro-general .modal-body p{
+	line-height:var(--nk-line-height);
+	font-size:var(--nk-font-base);
+	font-weight:400;
+	margin:0px;
+}
+.modal-adminpro-general .modal-body h2{
+	font-size:var(--nk-font-3xl);
+}
+.modal-adminpro-general .modal-body .modal-check-pro{
+	font-size:40px;
+	color:var(--nk-accent-blue);
+	margin-bottom:var(--nk-space-8);
+	display:block;
+}
+.modal-adminpro-general .modal-body .modal-check-pro.information-icon-pro{
+	font-size:40px;
+}
+.modal-bootstrap{
+	background:var(--nk-bg-surface);
+	padding:var(--nk-space-4);
+	border: 1px solid var(--nk-border-subtle);
+}
+.modal-bootstrap h2{
+	font-size:var(--nk-font-xl);
+	font-weight:700;
+}
+.modal-bootstrap p{
+	font-size:var(--nk-font-base);
+	line-height:var(--nk-line-height);
+	font-weight:400;
+}
+.modal-footer a{
+	margin-left:var(--nk-space-5);
+}
+.modal-area-button a{
+	margin:0px var(--nk-space-1);
+}
+.modal-area-button a:hover{
+	color:var(--nk-text-primary);
+}
+.modal-area-button a, .modal-footer a{
+	padding: var(--nk-space-3) var(--nk-space-6);
+    text-decoration: none;
+    color: var(--nk-text-primary);
+    position: relative;
+    z-index: 11;
+    font-size: var(--nk-font-base);
+	display:inline-block;
+}
+/* Button :before — consolidated from 165 per-animation width rules into width:100% */
+.modal-area-button a:before, .modal-footer a:before{
+	background: var(--nk-accent-blue);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 45px;
+    z-index: -1;
+    content: "";
+}
+/* Color variant overrides */
+.modal-area-button a.Danger.danger-color:before{
+	background:var(--nk-danger);
+}
+.modal-area-button a.Alert.Alert-color:before{
+	background:#d35400;
+}
+.modal-area-button a.Warning.Warning-color:before{
+	background:var(--nk-warning);
+}
+.modal-area-button a.Information.Information-color:before{
+	background:#8e44ad;
+}
+/* Button :after hover overlay — consolidated from 153 per-animation width rules */
+.modal-area-button a:after, .modal-footer a:after{
+	background: var(--nk-bg-body);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 0px;
+    z-index: -1;
+    content: "";
+	opacity:0;
+	transition: opacity var(--nk-transition-normal), height var(--nk-transition-normal);
+}
+.modal-area-button a:hover:after, .modal-footer a:hover:after{
+	opacity:1;
+	height: 45px;
+}
+#fullwidth .modal-dialog{
+	max-width:1170px;
+}
+#Customwidth .modal-dialog{
+	max-width:700px;
+}
+#FullColor .modal-content{
+	background:var(--nk-accent-blue);
+}
+#FullColor .modal-content .modal-body h2{
+	color:var(--nk-text-primary);
+}
+#FullColor .modal-content .modal-body p{
+	color:var(--nk-text-primary);
+}
+#FullColor .modal-content .modal-body .modal-check-pro{
+	color:var(--nk-text-primary);
+}
+.fullwidth-popup-InformationproModal .modal-close-area .btn-close{
+	background: #8e44ad;
+}
+.modal-adminpro-general.fullwidth-popup-InformationproModal .modal-body .modal-check-pro.information-icon-pro{
+	color:#8e44ad;
+}
+.modal-adminpro-general.fullwidth-popup-InformationproModal .modal-footer a:before{
+	background:#8e44ad;
+}
+.Customwidth-popup-WarningModal .modal-close-area .btn-close{
+	background: var(--nk-warning);
+}
+.modal-adminpro-general.Customwidth-popup-WarningModal .modal-body .modal-check-pro.information-icon-pro{
+	color:var(--nk-warning);
+}
+.modal-adminpro-general.Customwidth-popup-WarningModal .modal-footer a:before{
+	background:var(--nk-warning);
+}
+.FullColor-popup-DangerModal .modal-close-area .btn-close{
+	background: var(--nk-danger);
+}
+.modal-adminpro-general.FullColor-popup-DangerModal .modal-body .modal-check-pro.information-icon-pro{
+	color:var(--nk-danger);
+}
+.modal-adminpro-general.FullColor-popup-DangerModal .modal-footer a:before{
+	background:var(--nk-danger);
+}
+.FullColor-popup-AlertModal .modal-close-area .btn-close{
+	background: #d35400;
+}
+.modal-adminpro-general.FullColor-popup-AlertModal .modal-body .modal-check-pro.information-icon-pro{
+	color:#d35400;
+}
+.modal-adminpro-general.FullColor-popup-AlertModal .modal-footer a:before{
+	background:#d35400;
+}
+.footer-modal-admin{
+	text-align:center;
+	padding:0px 0px var(--nk-space-12) 0px;
+}
+.PrimaryModal-bgcolor .modal-content{
+	background: var(--nk-bg-body);
+}
+.modal-adminpro-general.PrimaryModal-bgcolor .modal-body h2{
+	color:var(--nk-text-primary);
+}
+.modal-adminpro-general.PrimaryModal-bgcolor .modal-body p{
+	color:var(--nk-text-primary);
+}
+.header-color-modal{
+	padding:var(--nk-space-5) var(--nk-space-12);
+	color:var(--nk-text-primary);
+}
+.header-color-modal.bg-color-1{
+	background:var(--nk-accent-blue);
+}
+.header-color-modal.bg-color-2{
+	background:#8e44ad;
+}
+.header-color-modal.bg-color-3{
+	background:var(--nk-warning);
+}
+.header-color-modal.bg-color-4{
+	background:var(--nk-danger);
+}
+.header-color-modal.bg-color-5{
+	background:#d35400;
+}
+.header-color-modal h4{
+	font-size:var(--nk-font-xl);
+}
+.tab-content-details {
+    text-align: center;
+    background: var(--nk-bg-surface);
+    padding: var(--nk-space-5) var(--nk-space-12);
+    border: 1px solid var(--nk-border-subtle);
+}
+.tab-content-details p {
+    font-size: var(--nk-font-base);
+    color: var(--nk-text-secondary);
+    line-height: var(--nk-line-height);
+}

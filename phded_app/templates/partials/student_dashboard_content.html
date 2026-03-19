@@ -1,0 +1,48 @@
+{% load static %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="white-box phded-user-hero" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="phded-section-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <h3 class="box-title mb-1">My Courses</h3>
+                    <p class="text-secondary mb-0">
+                        {% if dept_name %}
+                        Department: {{ dept_name }}
+                        {% else %}
+                        Your department is not assigned yet.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        {% if not dept_name %}
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <p class="text-secondary mb-0">Your department is not set. Contact admin to assign you to a department so you can see courses and take tests.</p>
+        </div>
+        {% else %}
+        <div class="row g-3">
+            {% for c in courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.25rem; border: 1px solid var(--nk-border-subtle);">
+                    <a href="{% url 'phded_app:student_course_detail' c.id %}" class="phded-ajax-link text-decoration-none text-white">
+                        <h5 class="mb-1">{{ c.name }}</h5>
+                        <small class="text-secondary">{{ c.code|default:"" }} - {{ c.assignments.count }} assignment(s)</small>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="white-box text-center py-4" style="background: var(--nk-bg-surface); border: 1px solid var(--nk-border-subtle);">
+                    <p class="text-secondary mb-0">No courses in your department ({{ dept_name }}) yet.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>

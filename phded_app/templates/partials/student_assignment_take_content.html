@@ -1,0 +1,31 @@
+{% load static %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-2">{{ assignment.title }}</h3>
+            <p class="text-secondary small mb-4">Course: {{ course.name }} — {{ assignment.questions.count }} questions. Score is weighted by difficulty (easy=1, medium=2, hard=3).</p>
+            <form method="post" action="{% url 'phded_app:student_assignment_take' assignment.id %}">
+                {% csrf_token %}
+                <ol class="list-unstyled">
+                    {% for q in assignment.questions.all %}
+                    <li class="mb-4 pb-3" style="border-bottom: 1px solid var(--nk-border-subtle);">
+                        <p class="fw-bold mb-2">{{ forloop.counter }}. {{ q.question_text }}</p>
+                        <div class="ms-2 mt-2">
+                            <label class="d-block mb-1"><input type="radio" name="q_{{ q.id }}" value="1" class="me-2"> {{ q.opt1 }}</label>
+                            <label class="d-block mb-1"><input type="radio" name="q_{{ q.id }}" value="2" class="me-2"> {{ q.opt2 }}</label>
+                            <label class="d-block mb-1"><input type="radio" name="q_{{ q.id }}" value="3" class="me-2"> {{ q.opt3 }}</label>
+                            <label class="d-block mb-1"><input type="radio" name="q_{{ q.id }}" value="4" class="me-2"> {{ q.opt4 }}</label>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="text-secondary">No questions in this assignment.</li>
+                    {% endfor %}
+                </ol>
+                {% if assignment.questions.count %}
+                <button type="submit" class="btn" style="background: var(--nk-accent-teal); color: #fff; border: none;">Submit test</button>
+                {% endif %}
+                <a href="{% url 'phded_app:student_course_detail' course.id %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

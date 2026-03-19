@@ -1,0 +1,138 @@
+/*----------------------------------------*/
+/*  Tabs Page Styles
+/*----------------------------------------*/
+
+/* Base tab nav (border-bottom style) */
+.nk-tabs {
+    border-bottom: 2px solid #1e3154;
+    gap: 4px;
+}
+.nk-tabs .nav-link {
+    color: #8e8e8e;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 10px 16px;
+    font-size: 13px;
+    border-radius: 0;
+    transition: color 0.2s, border-color 0.2s;
+}
+.nk-tabs .nav-link:hover {
+    color: #ccc;
+    border-bottom-color: #5a6a7f;
+}
+.nk-tabs .nav-link.active {
+    color: #fff;
+    background: transparent;
+    border-bottom-color: #03a9f4;
+}
+.nk-tabs .nav-link.disabled {
+    color: #4a5568;
+}
+
+/* Pill tabs */
+.nk-pills {
+    gap: 6px;
+    margin-bottom: 4px;
+}
+.nk-pills .nav-link {
+    color: #8e8e8e;
+    background: transparent;
+    border: 1px solid #1e3154;
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+.nk-pills .nav-link:hover {
+    color: #ccc;
+    background: #1e3154;
+}
+.nk-pills .nav-link.active {
+    color: #fff;
+    background: #03a9f4;
+    border-color: #03a9f4;
+}
+
+/* Tab content area */
+.nk-tab-content {
+    padding-top: 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #8e8e8e;
+    line-height: 1.7;
+}
+
+/* Icon tabs (icon stacked above label) */
+.nk-icon-tabs {
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.nk-icon-tabs .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #8e8e8e;
+    background: #1e3154;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 11px;
+    transition: all 0.2s;
+}
+.nk-icon-tabs .nav-link i {
+    font-size: 22px;
+}
+.nk-icon-tabs .nav-link:hover {
+    color: #ccc;
+    background: #253a5c;
+}
+.nk-icon-tabs .nav-link.active {
+    color: #fff;
+    background: rgba(3, 169, 244, 0.15);
+    border-color: #03a9f4;
+}
+.nk-icon-tabs .nav-link.active i {
+    color: #03a9f4;
+}
+
+/* Underline tabs (minimal underline, no border) */
+.nk-underline-tabs {
+    border-bottom: 1px solid #1e3154;
+    gap: 0;
+}
+.nk-underline-tabs .nav-link {
+    color: #8e8e8e;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 10px 20px;
+    font-size: 13px;
+    background: transparent;
+    border-radius: 0;
+    transition: color 0.2s, border-color 0.2s;
+}
+.nk-underline-tabs .nav-link:hover {
+    color: #ccc;
+}
+.nk-underline-tabs .nav-link.active {
+    color: #24caa1;
+    border-bottom-color: #24caa1;
+}
+
+/* Dark form inputs for vertical tab demo */
+.white-box .form-control,
+.white-box .form-select {
+    background: #1e3154;
+    border-color: #253a5c;
+    color: #fff;
+    font-size: 13px;
+}
+.white-box .form-control:focus,
+.white-box .form-select:focus {
+    background: #1e3154;
+    border-color: #03a9f4;
+    color: #fff;
+    box-shadow: 0 0 0 2px rgba(3, 169, 244, 0.15);
+}

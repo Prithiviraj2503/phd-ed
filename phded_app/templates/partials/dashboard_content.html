@@ -1,0 +1,72 @@
+{% load static %}
+<div class="row admin text-center">
+    <div class="col-12">
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6">
+                <div class="admin-content analysis-progrebar-ctn res-mg-t-15" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+                    <h4 class="text-start text-uppercase"><b>Students</b></h4>
+                    <div class="row vertical-center-box vertical-center-box-tablet">
+                        <div class="col-3 mar-bot-15 text-start">
+                            <span class="badge bg-green"><i class="bi bi-people"></i></span>
+                        </div>
+                        <div class="col-9 cus-gh-hd-pro">
+                            <h2 class="text-end no-margin">{{ students_count }}</h2>
+                        </div>
+                    </div>
+                    <div class="progress progress-mini">
+                        <div style="width: 60%;" class="progress-bar bg-green"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="admin-content analysis-progrebar-ctn res-mg-t-15" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+                    <h4 class="text-start text-uppercase"><b>Professors</b></h4>
+                    <div class="row vertical-center-box vertical-center-box-tablet">
+                        <div class="col-3 mar-bot-15 text-start">
+                            <span class="badge bg-blue"><i class="bi bi-person-badge"></i></span>
+                        </div>
+                        <div class="col-9 cus-gh-hd-pro">
+                            <h2 class="text-end no-margin">{{ professors_count }}</h2>
+                        </div>
+                    </div>
+                    <div class="progress progress-mini">
+                        <div style="width: 40%;" class="progress-bar bg-blue"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="admin-content analysis-progrebar-ctn res-mg-t-15" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+                    <h4 class="text-start text-uppercase"><b>Total Users</b></h4>
+                    <div class="row vertical-center-box vertical-center-box-tablet">
+                        <div class="col-3 mar-bot-15 text-start">
+                            <span class="badge bg-purple"><i class="bi bi-person-lines-fill"></i></span>
+                        </div>
+                        <div class="col-9 cus-gh-hd-pro">
+                            <h2 class="text-end no-margin">{{ total_users }}</h2>
+                        </div>
+                    </div>
+                    <div class="progress progress-mini">
+                        <div style="width: 70%;" class="progress-bar bg-purple"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="admin-content analysis-progrebar-ctn res-mg-t-15" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+                    <h4 class="text-start text-uppercase"><b>Quick actions</b></h4>
+                    <div class="d-flex flex-column gap-2 mt-2">
+                        <a href="{% url 'phded_app:create_user' %}?role=student" class="btn btn-sm phded-ajax-link" style="background: var(--nk-accent-teal); color: #fff; border: none;">Add Student</a>
+                        <a href="{% url 'phded_app:create_user' %}?role=professor" class="btn btn-sm phded-ajax-link" style="background: var(--nk-accent-blue); color: #fff; border: none;">Add Professor</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-3">Welcome to PhdEd Admin</h3>
+            <p class="text-secondary mb-0">From here you can create students and professors. New users will receive a welcome email with their auto-generated password. Use the sidebar or the quick action cards above to add users.</p>
+        </div>
+    </div>
+</div>

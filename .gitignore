@@ -1,0 +1,16 @@
+venv
+venv/
+test_data/
+__pycache__/
+media/
+*.pyc
+.env
+.env.*
+!.env.example
+*.sqlite3
+db.sqlite3
+staticfiles/
+*.pem
+*.key
+phdedapp
+phdedapp.pub

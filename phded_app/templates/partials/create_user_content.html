@@ -1,0 +1,57 @@
+{% load static %}
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="white-box phded-create-user-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-4">{{ page_title }}</h3>
+            <div id="phded-create-user-message" class="mb-3" style="display:none;"></div>
+            <form id="phded-create-user-form" method="post" action="{% url 'phded_app:create_user' %}" novalidate data-role="{{ user_role }}">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="{{ user_role }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_first_name">First name</label>
+                        <input type="text" id="id_first_name" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="first_name"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_last_name">Last name</label>
+                        <input type="text" id="id_last_name" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="last_name"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_email">Email</label>
+                        <input type="email" id="id_email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="email"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_phone">Phone</label>
+                        <input type="text" id="id_phone" name="phone" class="form-control" value="{{ form.phone.value|default:'' }}" placeholder="Optional">
+                        <div class="form-field-error text-danger small" data-field="phone"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_department">Department</label>
+                        <select id="id_department" name="department" class="form-control" {% if user_role == 'student' %}required{% endif %}>
+                            <option value="">{% if user_role == 'student' %}Select department{% else %}Select department (optional){% endif %}</option>
+                            {% for d in form.department.field.queryset %}
+                            <option value="{{ d.pk }}" {% if form.department.value|stringformat:"s" == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if user_role == 'student' %}
+                        <p class="form-text small text-secondary mb-0">Student will see courses under this department.</p>
+                        {% else %}
+                        <p class="form-text small text-secondary mb-0">Optional: assign the professor to a department.</p>
+                        {% endif %}
+                        <div class="form-field-error text-danger small" data-field="department"></div>
+                    </div>
+                    <div class="col-12">
+                        <p class="text-secondary small mb-0">A random password will be generated and sent to the user's email.</p>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <button type="submit" class="btn btn-phded-submit" style="background: var(--nk-accent-blue); color: #fff; border: none;">Create {{ user_role|title }}</button>
+                        <a href="{% url 'phded_app:dashboard' %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

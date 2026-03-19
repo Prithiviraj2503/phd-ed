@@ -1,0 +1,182 @@
+<div class="row g-4">
+    <div class="col-12">
+        <div class="white-box phded-user-hero" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="phded-section-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <h3 class="box-title mb-1">Users</h3>
+                    <p class="text-secondary mb-0">Browse students and professors in separate tabs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                <ul class="nav nav-pills phded-user-tabs" id="phded-user-tabs">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" data-user-filter="all">
+                            <i class="bi bi-grid-3x3-gap me-1"></i>All
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-user-filter="student">
+                            <i class="bi bi-mortarboard-fill me-1"></i>Students
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-user-filter="professor">
+                            <i class="bi bi-person-workspace me-1"></i>Professors
+                        </button>
+                    </li>
+                </ul>
+                <div class="text-secondary small" id="phded-user-filter-label">Showing all users</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="phded-user-table-body">
+                        {% for u in users %}
+                        <tr data-user-role="{{ u.role }}">
+                            <td>{{ u.user.get_full_name|default:u.user.username }}</td>
+                            <td>{{ u.user.email }}</td>
+                            <td>
+                                <span class="badge bg-{% if u.role == 'professor' %}info{% else %}success{% endif %}">
+                                    {{ u.get_role_display }}
+                                </span>
+                            </td>
+                            <td>{{ u.department|default:"-" }}</td>
+                            <td>{{ u.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger delete-user-btn" data-user-id="{{ u.user.id }}" data-user-name="{{ u.user.get_full_name|default:u.user.username }}">
+                                    <i class="bi bi-trash3-fill me-1"></i>Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="phded-empty-row">
+                            <td colspan="6" class="text-center text-secondary">No users yet. Add a student or professor from the dashboard.</td>
+                        </tr>
+                        {% endfor %}
+                        <tr id="phded-filter-empty-row" style="display:none;">
+                            <td colspan="6" class="text-center text-secondary">No users found for this tab.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function phdedSetUserFilter(filter) {
+    const rows = Array.from(document.querySelectorAll('#phded-user-table-body tr[data-user-role]'));
+    const emptyRow = document.getElementById('phded-filter-empty-row');
+    const label = document.getElementById('phded-user-filter-label');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const shouldShow = filter === 'all' || row.dataset.userRole === filter;
+        row.style.display = shouldShow ? '' : 'none';
+        if (shouldShow) visibleCount += 1;
+    });
+
+    if (emptyRow) {
+        emptyRow.style.display = visibleCount === 0 && rows.length ? '' : 'none';
+    }
+
+    if (label) {
+        label.textContent = filter === 'all'
+            ? 'Showing all users'
+            : 'Showing ' + (filter === 'student' ? 'students' : 'professors');
+    }
+}
+
+function attachUserFilterHandlers() {
+    document.querySelectorAll('#phded-user-tabs [data-user-filter]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('#phded-user-tabs .nav-link').forEach(link => link.classList.remove('active'));
+            this.classList.add('active');
+            phdedSetUserFilter(this.dataset.userFilter);
+        });
+    });
+    phdedSetUserFilter('all');
+}
+
+function attachDeleteHandlers() {
+    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.removeEventListener('click', handleDeleteClick);
+        btn.addEventListener('click', handleDeleteClick);
+    });
+}
+
+function handleDeleteClick(e) {
+    e.preventDefault();
+    const userId = this.dataset.userId;
+    const userName = this.dataset.userName;
+
+    if (confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+        const csrfToken = getCookie('csrftoken');
+        if (window.phdedShowLoader) window.phdedShowLoader();
+
+        fetch(`/users/${userId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                if (typeof loadContent === 'function') {
+                    loadContent('/users/');
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete user');
+        })
+        .finally(() => {
+            if (window.phdedHideLoader) window.phdedHideLoader();
+        });
+    }
+}
+
+attachUserFilterHandlers();
+attachDeleteHandlers();
+</script>

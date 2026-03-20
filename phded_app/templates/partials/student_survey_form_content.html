@@ -1,0 +1,103 @@
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-4">Student Survey</h3>
+            <div id="phded-student-survey-message" class="mb-3" style="display:none;"></div>
+            <form id="phded-student-survey-form" method="post" action="{% url 'phded_app:student_survey' %}" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12"><h5 class="mb-0">1. Academic Data</h5></div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_tenth_score">{{ form.tenth_score.label }}</label>
+                        {{ form.tenth_score }}
+                        <div class="form-field-error text-danger small" data-field="tenth_score"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_twelfth_score">{{ form.twelfth_score.label }}</label>
+                        {{ form.twelfth_score }}
+                        <div class="form-field-error text-danger small" data-field="twelfth_score"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_attendance_record">{{ form.attendance_record.label }}</label>
+                        {{ form.attendance_record }}
+                        <div class="form-field-error text-danger small" data-field="attendance_record"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_academic_level">{{ form.academic_level.label }}</label>
+                        {{ form.academic_level }}
+                        <div class="form-field-error text-danger small" data-field="academic_level"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_course_completion_rate">{{ form.course_completion_rate.label }}</label>
+                        {{ form.course_completion_rate }}
+                        <div class="form-field-error text-danger small" data-field="course_completion_rate"></div>
+                    </div>
+
+                    <div class="col-12 mt-3"><h5 class="mb-0">2. Behaviour Data</h5></div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_study_hours_daily">{{ form.study_hours_daily.label }}</label>
+                        {{ form.study_hours_daily }}
+                        <div class="form-field-error text-danger small" data-field="study_hours_daily"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_gaming_hours">{{ form.gaming_hours.label }}</label>
+                        {{ form.gaming_hours }}
+                        <div class="form-field-error text-danger small" data-field="gaming_hours"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_social_media_hours">{{ form.social_media_hours.label }}</label>
+                        {{ form.social_media_hours }}
+                        <div class="form-field-error text-danger small" data-field="social_media_hours"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_sleep_hours">{{ form.sleep_hours.label }}</label>
+                        {{ form.sleep_hours }}
+                        <div class="form-field-error text-danger small" data-field="sleep_hours"></div>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="id_extra_curricular_activities">{{ form.extra_curricular_activities.label }}</label>
+                        {{ form.extra_curricular_activities }}
+                        <div class="form-field-error text-danger small" data-field="extra_curricular_activities"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_extra_curricular_hours">{{ form.extra_curricular_hours.label }}</label>
+                        {{ form.extra_curricular_hours }}
+                        <div class="form-field-error text-danger small" data-field="extra_curricular_hours"></div>
+                    </div>
+
+                    <div class="col-12 mt-3"><h5 class="mb-0">3. Demographics Data</h5></div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_dob">DOB</label>
+                        {{ form.dob }}
+                        <div class="form-field-error text-danger small" data-field="dob"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Age</label>
+                        <input type="text" id="id_age" class="form-control" value="{{ survey.age|default:'' }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="id_gender">Gender</label>
+                        {{ form.gender }}
+                        <div class="form-field-error text-danger small" data-field="gender"></div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <button type="submit" class="btn" style="background: var(--nk-accent-blue); color: #fff; border: none;">Save Survey</button>
+                        <a href="{% url 'phded_app:student_dashboard' %}" class="btn btn-outline-secondary ms-2 phded-ajax-link">Back</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h4 class="mb-3">Auto-tracked Learning</h4>
+            <div class="mb-2"><strong>Department:</strong> {{ learning.department_name|default:"-" }}</div>
+            <div class="mb-2"><strong>Courses:</strong> {{ learning.total_courses }}</div>
+            <div class="mb-2"><strong>Course contents available:</strong> {{ learning.total_contents }}</div>
+            <div class="mb-2"><strong>Quiz attempts:</strong> {{ learning.total_attempts }}</div>
+            <div class="mb-2"><strong>Completed quizzes:</strong> {{ learning.completed_attempts }}</div>
+            <div class="mb-0"><strong>Online learning activities:</strong> {{ learning.online_learning_activities }}</div>
+        </div>
+    </div>
+</div>

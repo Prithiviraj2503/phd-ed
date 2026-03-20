@@ -10,6 +10,16 @@ def generate_password(length=12):
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 
+def split_full_name(full_name):
+    full_name = (full_name or '').strip()
+    if not full_name:
+        return '', ''
+    parts = full_name.split(None, 1)
+    first_name = parts[0]
+    last_name = parts[1] if len(parts) > 1 else ''
+    return first_name, last_name
+
+
 def send_welcome_email(email, password, first_name, role):
     subject = "Welcome to PhdEd – Your account and password"
     body = f"""

@@ -1,3 +1,5 @@
+import pandas as pd
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.db import models
@@ -7,9 +9,9 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .models import UserProfile, Department, Course, CourseContent, Assignment, Question, StudentAssignmentAttempt, StudentAnswer
-from .forms import LoginForm, CreateUserForm, CourseCreateForm, CourseContentForm, AssignmentCreateForm
-from .utils import generate_password, send_welcome_email, send_course_content_notification, send_assignment_launch_notification
+from .models import UserProfile, Department, Course, CourseContent, Assignment, Question, StudentAssignmentAttempt, StudentAnswer, StudentSurvey
+from .forms import LoginForm, CreateUserForm, BulkStudentUploadForm, CourseCreateForm, CourseContentForm, AssignmentCreateForm, StudentSurveyForm
+from .utils import split_full_name, generate_password, send_welcome_email, send_course_content_notification, send_assignment_launch_notification
 from .assignment_utils import extract_text_from_docx, generate_mcqs_from_text_groq, parse_excel_questions
 
 
@@ -120,6 +122,158 @@ def build_assignment_summary(assignment):
         'summary_rows': summary_rows,
         'answer_rows': answer_rows,
     }
+
+
+def normalize_text(value):
+    return str(value or '').strip()
+
+
+def get_or_create_department_name(department_name):
+    department_name = normalize_text(department_name)
+    if not department_name:
+        return ''
+    existing = Department.objects.filter(name__iexact=department_name).first()
+    if existing:
+        return existing.name
+    return Department.objects.create(name=department_name).name
+
+
+def create_portal_user(*, role, full_name, email, phone='', department='', college='', address=''):
+    email = normalize_text(email).lower()
+    department_name = get_or_create_department_name(department)
+    first_name, last_name = split_full_name(full_name)
+    password = generate_password()
+
+    user = User.objects.create_user(
+        username=email,
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+    )
+    UserProfile.objects.create(
+        user=user,
+        role=role,
+        phone=normalize_text(phone),
+        department=department_name,
+        college=normalize_text(college),
+        address=normalize_text(address),
+    )
+    email_sent = send_welcome_email(
+        email=email,
+        password=password,
+        first_name=user.first_name or user.username,
+        role=role,
+    )
+    return user, email_sent
+
+
+def parse_student_upload_rows(uploaded_file):
+    file_name = (uploaded_file.name or '').lower()
+    if file_name.endswith('.csv'):
+        dataframe = pd.read_csv(uploaded_file)
+    elif file_name.endswith('.xlsx'):
+        dataframe = pd.read_excel(uploaded_file)
+    else:
+        raise ValueError('Only .xlsx and .csv files are supported.')
+
+    dataframe = dataframe.fillna('')
+    rows = []
+    for record in dataframe.to_dict(orient='records'):
+        row_dict = {str(key): value for key, value in record.items()}
+        row_dict['__row_values__'] = list(record.values())
+        if any(normalize_text(value) for value in row_dict['__row_values__']):
+            rows.append(row_dict)
+    return rows
+
+
+def map_student_upload_row(row):
+    normalized = {
+        normalize_text(key).lower().replace(' ', '').replace('_', '').replace('(optional)', ''): value
+        for key, value in row.items()
+        if key != '__row_values__'
+    }
+    mapped = {
+        'full_name': normalize_text(
+            normalized.get('studentname')
+            or normalized.get('name')
+            or normalized.get('fullname')
+        ),
+        'email': normalize_text(normalized.get('email')),
+        'college': normalize_text(normalized.get('college')),
+        'address': normalize_text(normalized.get('address')),
+        'phone': normalize_text(normalized.get('phone')),
+        'department': normalize_text(normalized.get('department')),
+    }
+    if mapped['full_name'] and mapped['email'] and mapped['department']:
+        return mapped
+
+    row_values = [normalize_text(value) for value in row.get('__row_values__', [])]
+    if len(row_values) >= 7:
+        mapped['full_name'] = mapped['full_name'] or row_values[1]
+        mapped['email'] = mapped['email'] or row_values[2]
+        mapped['college'] = mapped['college'] or row_values[3]
+        mapped['address'] = mapped['address'] or row_values[4]
+        mapped['phone'] = mapped['phone'] or row_values[5]
+        mapped['department'] = mapped['department'] or row_values[6]
+    elif len(row_values) >= 6:
+        mapped['full_name'] = mapped['full_name'] or row_values[0]
+        mapped['email'] = mapped['email'] or row_values[1]
+        mapped['college'] = mapped['college'] or row_values[2]
+        mapped['address'] = mapped['address'] or row_values[3]
+        mapped['phone'] = mapped['phone'] or row_values[4]
+        mapped['department'] = mapped['department'] or row_values[5]
+    return mapped
+
+
+def get_student_learning_summary(student):
+    department_name = getattr(getattr(student, 'profile', None), 'department', '')
+    courses = Course.objects.filter(department__name=department_name)
+    total_courses = courses.count()
+    total_contents = CourseContent.objects.filter(course__in=courses).count()
+    assignment_attempts = StudentAssignmentAttempt.objects.filter(student=student)
+    total_attempts = assignment_attempts.count()
+    completed_attempts = assignment_attempts.filter(submitted_at__isnull=False).count()
+    return {
+        'department_name': department_name,
+        'total_courses': total_courses,
+        'total_contents': total_contents,
+        'total_attempts': total_attempts,
+        'completed_attempts': completed_attempts,
+        'online_learning_activities': total_contents + total_attempts,
+    }
+
+
+def get_or_create_student_survey(student):
+    survey, _ = StudentSurvey.objects.get_or_create(student=student)
+    return survey
+
+
+def get_visible_student_queryset(request):
+    if request.session.get('role') == 'admin':
+        return User.objects.filter(profile__role='student').select_related('profile').order_by('first_name', 'last_name', 'email')
+    professor = get_professor_user(request)
+    if not professor:
+        return User.objects.none()
+    department_names = Course.objects.filter(professor=professor).values_list('department__name', flat=True).distinct()
+    return User.objects.filter(
+        profile__role='student',
+        profile__department__in=department_names,
+    ).select_related('profile').order_by('first_name', 'last_name', 'email')
+
+
+def build_student_survey_rows(request):
+    rows = []
+    for student in get_visible_student_queryset(request):
+        survey = getattr(student, 'survey', None)
+        learning = get_student_learning_summary(student)
+        rows.append({
+            'student': student,
+            'profile': getattr(student, 'profile', None),
+            'survey': survey,
+            'learning': learning,
+        })
+    return rows
 
 
 @ensure_csrf_cookie
@@ -254,7 +408,8 @@ def create_user_view(request):
 
     if request.method == 'GET':
         form = CreateUserForm(role=user_role)
-        ctx = {'form': form, 'page_title': page_title, 'user_role': user_role}
+        bulk_form = BulkStudentUploadForm() if user_role == 'student' else None
+        ctx = {'form': form, 'bulk_form': bulk_form, 'page_title': page_title, 'user_role': user_role}
         if is_ajax(request):
             html = render(request, 'partials/create_user_content.html', ctx).content.decode()
             return JsonResponse({'html': html, 'breadcrumb_title': page_title, 'breadcrumb_subtitle': f'Create new {user_role}'})
@@ -264,45 +419,90 @@ def create_user_view(request):
     if not form.is_valid():
         if is_ajax(request):
             return JsonResponse({'success': False, 'errors': dict(form.errors)}, status=400)
-        return render(request, 'create_user.html', {'form': form, 'page_title': page_title, 'user_role': user_role})
+        return render(request, 'create_user.html', {'form': form, 'bulk_form': BulkStudentUploadForm() if user_role == 'student' else None, 'page_title': page_title, 'user_role': user_role})
 
     email = form.cleaned_data['email'].strip().lower()
     if User.objects.filter(email__iexact=email).exists():
         form.add_error('email', 'A user with this email already exists.')
         if is_ajax(request):
             return JsonResponse({'success': False, 'errors': dict(form.errors)}, status=400)
-        return render(request, 'create_user.html', {'form': form, 'page_title': page_title, 'user_role': user_role})
+        return render(request, 'create_user.html', {'form': form, 'bulk_form': BulkStudentUploadForm() if user_role == 'student' else None, 'page_title': page_title, 'user_role': user_role})
 
-    dept_value = form.cleaned_data.get('department')
-    department_str = getattr(dept_value, 'name', None) or (dept_value if isinstance(dept_value, str) else '') or ''
-
-    password = generate_password()
-    user = User.objects.create_user(
-        username=email,
-        email=email,
-        password=password,
-        first_name=form.cleaned_data['first_name'].strip(),
-        last_name=form.cleaned_data['last_name'].strip(),
-    )
-    profile = UserProfile.objects.create(
-        user=user,
+    user, email_sent = create_portal_user(
         role=role,
+        full_name=form.cleaned_data['full_name'],
+        email=email,
         phone=form.cleaned_data.get('phone') or '',
-        department=department_str,
-    )
-    send_welcome_email(
-        email=email,
-        password=password,
-        first_name=user.first_name or user.username,
-        role=role,
+        department=form.cleaned_data.get('department') or '',
+        college=form.cleaned_data.get('college') or '',
+        address=form.cleaned_data.get('address') or '',
     )
     if is_ajax(request):
         return JsonResponse({
             'success': True,
-            'message': f'{user_role.title()} created. Welcome email sent to {email}.',
+            'message': f'{user_role.title()} created. {"Welcome email sent" if email_sent else "Account created, but welcome email could not be sent"} to {email}.',
             'redirect': '/users/',
         })
     return redirect('phded_app:user_list')
+
+
+@admin_required
+@require_http_methods(["POST"])
+def bulk_student_upload_view(request):
+    form = BulkStudentUploadForm(request.POST, request.FILES)
+    if not form.is_valid():
+        return JsonResponse({'success': False, 'errors': dict(form.errors), 'error': 'Please upload a valid student sheet.'}, status=400)
+
+    try:
+        rows = parse_student_upload_rows(form.cleaned_data['file'])
+    except ValueError as exc:
+        return JsonResponse({'success': False, 'errors': {'file': [str(exc)]}, 'error': str(exc)}, status=400)
+    except Exception:
+        return JsonResponse({'success': False, 'errors': {'file': ['The file could not be read.']}, 'error': 'The file could not be read.'}, status=400)
+
+    created_count = 0
+    skipped_count = 0
+    emailed_count = 0
+    row_errors = []
+
+    for index, raw_row in enumerate(rows, start=2):
+        mapped_row = map_student_upload_row(raw_row)
+        full_name = mapped_row['full_name']
+        email = mapped_row['email'].lower()
+        department = mapped_row['department']
+
+        if not full_name or not email or not department:
+            row_errors.append(f'Row {index}: Student Name, Email, and Department are required.')
+            continue
+        if User.objects.filter(email__iexact=email).exists():
+            skipped_count += 1
+            continue
+
+        _, email_sent = create_portal_user(
+            role='student',
+            full_name=full_name,
+            email=email,
+            phone=mapped_row['phone'],
+            department=department,
+            college=mapped_row['college'],
+            address=mapped_row['address'],
+        )
+        created_count += 1
+        if email_sent:
+            emailed_count += 1
+
+    message = f'Bulk upload finished. Created {created_count} student(s), skipped {skipped_count} existing record(s), sent {emailed_count} welcome email(s).'
+    if row_errors:
+        message = f'{message} {len(row_errors)} row(s) had missing required fields.'
+
+    response = {
+        'success': True,
+        'message': message,
+        'redirect': '/users/',
+    }
+    if row_errors:
+        response['message'] = f'{message} First issue: {row_errors[0]}'
+    return JsonResponse(response)
 
 
 @admin_required
@@ -382,6 +582,104 @@ def professor_dashboard_view(request):
         html = render(request, 'partials/professor_dashboard_content.html', {'courses': courses}).content.decode()
         return JsonResponse({'html': html, 'breadcrumb_title': 'My courses', 'breadcrumb_subtitle': 'Courses you teach', 'hide_breadcrumb': True})
     return render(request, 'professor_dashboard.html', {'courses': courses})
+
+
+@login_required
+@require_http_methods(["GET"])
+def student_survey_list_view(request):
+    if request.session.get('role') not in ('admin', 'professor'):
+        return redirect('phded_app:dashboard')
+    survey_rows = build_student_survey_rows(request)
+    title = 'Student Surveys'
+    subtitle = 'Academic, behaviour and demographic details'
+    ctx = {
+        'survey_rows': survey_rows,
+        'page_title': title,
+        'page_subtitle': subtitle,
+        'user_role': request.session.get('role'),
+    }
+    if is_ajax(request):
+        html = render(request, 'partials/student_survey_list_content.html', ctx).content.decode()
+        return JsonResponse({'html': html, 'breadcrumb_title': title, 'breadcrumb_subtitle': subtitle})
+    return render(request, 'student_survey_list.html', ctx)
+
+
+@login_required
+@require_http_methods(["GET"])
+def student_survey_detail_view(request, student_id):
+    if request.session.get('role') not in ('admin', 'professor'):
+        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+    student = get_visible_student_queryset(request).filter(id=student_id).first()
+    if not student:
+        return JsonResponse({'success': False, 'error': 'Student not found.'}, status=404)
+    survey = getattr(student, 'survey', None)
+    learning = get_student_learning_summary(student)
+    html = render(request, 'partials/student_survey_detail_modal.html', {
+        'student': student,
+        'profile': getattr(student, 'profile', None),
+        'survey': survey,
+        'learning': learning,
+    }).content.decode()
+    return JsonResponse({'html': html})
+
+
+@login_required
+@require_http_methods(["GET"])
+def student_survey_export_view(request):
+    if request.session.get('role') not in ('admin', 'professor'):
+        return redirect('phded_app:dashboard')
+    try:
+        from openpyxl import Workbook
+    except ModuleNotFoundError:
+        return HttpResponse('openpyxl is not installed in this environment.', status=500)
+
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = 'Student Surveys'
+    sheet.append([
+        'Student Name', 'Email', 'Department', 'College', 'Phone', 'Address',
+        '10th Score', '12th Score', 'Attendance Record', 'Academic Level', 'Course Completion Rate',
+        'Study Hours Daily', 'Gaming Hours', 'Social Media Hours', 'Sleep Hours',
+        'Extra Curricular Activities', 'Extra Curricular Hours',
+        'DOB', 'Age', 'Gender', 'Online Learning Activities', 'Quiz Attempts', 'Completed Quizzes', 'Available Course Contents',
+    ])
+    for row in build_student_survey_rows(request):
+        student = row['student']
+        profile = row['profile']
+        survey = row['survey']
+        learning = row['learning']
+        sheet.append([
+            student.get_full_name() or student.username,
+            student.email,
+            getattr(profile, 'department', ''),
+            getattr(profile, 'college', ''),
+            getattr(profile, 'phone', ''),
+            getattr(profile, 'address', ''),
+            getattr(survey, 'tenth_score', ''),
+            getattr(survey, 'twelfth_score', ''),
+            getattr(survey, 'attendance_record', ''),
+            survey.get_academic_level_display() if survey and survey.academic_level else '',
+            getattr(survey, 'course_completion_rate', ''),
+            getattr(survey, 'study_hours_daily', ''),
+            getattr(survey, 'gaming_hours', ''),
+            getattr(survey, 'social_media_hours', ''),
+            getattr(survey, 'sleep_hours', ''),
+            getattr(survey, 'extra_curricular_activities', ''),
+            getattr(survey, 'extra_curricular_hours', ''),
+            survey.dob.isoformat() if survey and survey.dob else '',
+            survey.age if survey else '',
+            survey.get_gender_display() if survey and survey.gender else '',
+            learning['online_learning_activities'],
+            learning['total_attempts'],
+            learning['completed_attempts'],
+            learning['total_contents'],
+        ])
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="student_surveys.xlsx"'
+    workbook.save(response)
+    return response
 
 
 @professor_required
@@ -681,9 +979,43 @@ def student_dashboard_view(request):
     else:
         courses = Course.objects.filter(department__name=dept_name).select_related('department', 'professor').prefetch_related('assignments').order_by('-created_at')
     if is_ajax(request):
-        html = render(request, 'partials/student_dashboard_content.html', {'courses': courses, 'dept_name': dept_name}).content.decode()
+        html = render(request, 'partials/student_dashboard_content.html', {'courses': courses, 'dept_name': dept_name, 'survey_completed': hasattr(user, 'survey')}).content.decode()
         return JsonResponse({'html': html, 'breadcrumb_title': 'My courses', 'breadcrumb_subtitle': dept_name or 'Select your department', 'hide_breadcrumb': True})
-    return render(request, 'student_dashboard.html', {'courses': courses, 'dept_name': dept_name})
+    return render(request, 'student_dashboard.html', {'courses': courses, 'dept_name': dept_name, 'survey_completed': hasattr(user, 'survey')})
+
+
+@student_required
+@require_http_methods(["GET", "POST"])
+def student_survey_view(request):
+    student = get_student_user(request)
+    if not student:
+        return redirect('phded_app:login')
+    survey = get_or_create_student_survey(student)
+    if request.method == 'GET':
+        form = StudentSurveyForm(instance=survey)
+        learning = get_student_learning_summary(student)
+        ctx = {
+            'form': form,
+            'survey': survey,
+            'learning': learning,
+            'student': student,
+        }
+        if is_ajax(request):
+            html = render(request, 'partials/student_survey_form_content.html', ctx).content.decode()
+            return JsonResponse({'html': html, 'breadcrumb_title': 'Student Survey', 'breadcrumb_subtitle': 'Save your academic, behaviour and demographic details'})
+        return render(request, 'student_survey_form.html', ctx)
+
+    form = StudentSurveyForm(request.POST, instance=survey)
+    if not form.is_valid():
+        if is_ajax(request):
+            return JsonResponse({'success': False, 'errors': dict(form.errors)}, status=400)
+        learning = get_student_learning_summary(student)
+        return render(request, 'student_survey_form.html', {'form': form, 'survey': survey, 'learning': learning, 'student': student})
+
+    form.save()
+    if is_ajax(request):
+        return JsonResponse({'success': True, 'message': 'Survey saved successfully.', 'redirect': reverse('phded_app:student_survey')})
+    return redirect('phded_app:student_survey')
 
 
 @student_required

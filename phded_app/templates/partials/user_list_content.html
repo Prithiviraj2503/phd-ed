@@ -41,6 +41,8 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>College</th>
+                            <th>Phone</th>
                             <th>Department</th>
                             <th>Created</th>
                             <th>Action</th>
@@ -56,6 +58,8 @@
                                     {{ u.get_role_display }}
                                 </span>
                             </td>
+                            <td>{{ u.college|default:"-" }}</td>
+                            <td>{{ u.phone|default:"-" }}</td>
                             <td>{{ u.department|default:"-" }}</td>
                             <td>{{ u.created_at|date:"M d, Y" }}</td>
                             <td>
@@ -66,11 +70,11 @@
                         </tr>
                         {% empty %}
                         <tr class="phded-empty-row">
-                            <td colspan="6" class="text-center text-secondary">No users yet. Add a student or professor from the dashboard.</td>
+                            <td colspan="8" class="text-center text-secondary">No users yet. Add a student or professor from the dashboard.</td>
                         </tr>
                         {% endfor %}
                         <tr id="phded-filter-empty-row" style="display:none;">
-                            <td colspan="6" class="text-center text-secondary">No users found for this tab.</td>
+                            <td colspan="8" class="text-center text-secondary">No users found for this tab.</td>
                         </tr>
                     </tbody>
                 </table>

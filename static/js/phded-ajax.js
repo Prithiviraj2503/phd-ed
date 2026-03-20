@@ -229,6 +229,61 @@
         submitFormAjax($(this));
     });
 
+    $(document).on('submit', '#phded-bulk-student-upload-form', function (e) {
+        e.preventDefault();
+        submitFormAjax($(this));
+    });
+
+    $(document).on('submit', '#phded-student-survey-form', function (e) {
+        e.preventDefault();
+        submitFormAjax($(this));
+    });
+
+    function updateSurveyAge() {
+        var dobInput = document.getElementById('id_dob');
+        var ageInput = document.getElementById('id_age');
+        if (!dobInput || !ageInput || !dobInput.value) {
+            if (ageInput) ageInput.value = '';
+            return;
+        }
+        var dob = new Date(dobInput.value);
+        if (isNaN(dob.getTime())) {
+            ageInput.value = '';
+            return;
+        }
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age -= 1;
+        }
+        ageInput.value = age >= 0 ? age : '';
+    }
+
+    $(document).on('change', '#id_dob', updateSurveyAge);
+    $(document).on('click', '.phded-student-survey-detail-btn', function () {
+        var url = $(this).data('detail-url');
+        if (!url) return;
+        showLoader();
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            dataType: 'json',
+            success: function (data) {
+                $('#phdedStudentSurveyDetailContent').html(data.html || '');
+                var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('phdedStudentSurveyDetailModal'));
+                modal.show();
+            },
+            error: function () {
+                alert('Failed to load student survey details.');
+            },
+            complete: function () {
+                hideLoader();
+            }
+        });
+    });
+
     $(document).on('click', '.phded-assignment-summary-btn', function () {
         var url = $(this).data('summary-url');
         if (!url) return;
@@ -274,4 +329,6 @@
             }
         });
     });
+
+    $(updateSurveyAge);
 })(jQuery);

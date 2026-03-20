@@ -56,6 +56,12 @@
                                 <span class="mini-click-non">Courses</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{% url 'phded_app:student_survey_list' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-clipboard-data icon-wrap"></i>
+                                <span class="mini-click-non">Student Surveys</span>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -69,6 +75,12 @@
                                 <span class="mini-click-non">My courses</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{% url 'phded_app:student_survey_list' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-clipboard-data icon-wrap"></i>
+                                <span class="mini-click-non">Student Surveys</span>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -80,6 +92,12 @@
                             <a href="{% url 'phded_app:student_dashboard' %}" class="phded-ajax-link">
                                 <i class="bi big-icon bi-journal-text icon-wrap"></i>
                                 <span class="mini-click-non">My courses</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'phded_app:student_survey' %}" class="phded-ajax-link">
+                                <i class="bi big-icon bi-ui-checks-grid icon-wrap"></i>
+                                <span class="mini-click-non">My Survey</span>
                             </a>
                         </li>
                     </ul>
@@ -120,6 +138,17 @@
     <script src="{% static 'js/metisMenu/metisMenu-active.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/phded-ajax.js' %}"></script>
+    <div class="modal fade" id="phdedStudentSurveyDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content" style="background: var(--nk-bg-surface); color: #fff;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Student Survey Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="phdedStudentSurveyDetailContent"></div>
+            </div>
+        </div>
+    </div>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

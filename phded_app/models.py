@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class UserProfile(models.Model):
@@ -12,6 +13,8 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     phone = models.CharField(max_length=20, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    college = models.CharField(max_length=255, blank=True)
+    address = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -138,3 +141,49 @@ class StudentAnswer(models.Model):
 
     class Meta:
         unique_together = [['attempt', 'question']]
+
+
+class StudentSurvey(models.Model):
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+        ('prefer_not_to_say', 'Prefer not to say'),
+    ]
+    ACADEMIC_LEVEL_CHOICES = [
+        ('undergraduate_it', 'Under Graduate - IT'),
+        ('undergraduate_cs', 'Under Graduate - CS'),
+        ('undergraduate_other', 'Under Graduate - Other'),
+    ]
+
+    student = models.OneToOneField(User, on_delete=models.CASCADE, related_name='survey')
+    tenth_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    twelfth_score = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    attendance_record = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    academic_level = models.CharField(max_length=50, choices=ACADEMIC_LEVEL_CHOICES, blank=True)
+    course_completion_rate = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    study_hours_daily = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    gaming_hours = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    social_media_hours = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    sleep_hours = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    extra_curricular_activities = models.CharField(max_length=255, blank=True)
+    extra_curricular_hours = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    dob = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['student__first_name', 'student__last_name', 'student__email']
+
+    def __str__(self):
+        return f"Survey - {self.student.get_full_name() or self.student.username}"
+
+    @property
+    def age(self):
+        if not self.dob:
+            return None
+        today = timezone.localdate()
+        return today.year - self.dob.year - (
+            (today.month, today.day) < (self.dob.month, self.dob.day)
+        )

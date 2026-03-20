@@ -9,11 +9,15 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('create-user/', views.create_user_view, name='create_user'),
+    path('create-user/bulk-upload/', views.bulk_student_upload_view, name='bulk_student_upload'),
     path('users/', views.user_list_view, name='user_list'),
     path('users/<int:user_id>/delete/', views.delete_user_view, name='delete_user'),
     # Admin: courses
     path('courses/', views.admin_course_list_view, name='admin_course_list'),
     path('courses/create/', views.admin_course_create_view, name='admin_course_create'),
+    path('surveys/', views.student_survey_list_view, name='student_survey_list'),
+    path('surveys/export/', views.student_survey_export_view, name='student_survey_export'),
+    path('surveys/<int:student_id>/details/', views.student_survey_detail_view, name='student_survey_detail'),
     # Professor
     path('professor/', views.professor_dashboard_view, name='professor_dashboard'),
     path('professor/course/<int:course_id>/', views.professor_course_detail_view, name='professor_course_detail'),
@@ -26,6 +30,7 @@ urlpatterns = [
     path('professor/course/<int:course_id>/assignment/<int:assignment_id>/summary/export/', views.professor_assignment_summary_export_view, name='professor_assignment_summary_export'),
     # Student
     path('student/', views.student_dashboard_view, name='student_dashboard'),
+    path('student/survey/', views.student_survey_view, name='student_survey'),
     path('student/course/<int:course_id>/', views.student_course_detail_view, name='student_course_detail'),
     path('student/assignment/<int:assignment_id>/take/', views.student_assignment_take_view, name='student_assignment_take'),
     path('student/assignment/<int:assignment_id>/result/', views.student_assignment_result_view, name='student_assignment_result'),

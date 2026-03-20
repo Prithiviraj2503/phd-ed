@@ -2,20 +2,25 @@
 <div class="row g-4">
     <div class="col-12">
         <div class="white-box phded-user-hero" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
-            <div class="d-flex align-items-center gap-3 flex-wrap">
-                <div class="phded-section-icon">
-                    <i class="bi bi-mortarboard-fill"></i>
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="phded-section-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="box-title mb-1">My Courses</h3>
+                        <p class="text-secondary mb-0">
+                            {% if dept_name %}
+                            Department: {{ dept_name }}
+                            {% else %}
+                            Your department is not assigned yet.
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="box-title mb-1">My Courses</h3>
-                    <p class="text-secondary mb-0">
-                        {% if dept_name %}
-                        Department: {{ dept_name }}
-                        {% else %}
-                        Your department is not assigned yet.
-                        {% endif %}
-                    </p>
-                </div>
+                <a href="{% url 'phded_app:student_survey' %}" class="btn phded-ajax-link" style="background: var(--nk-accent-blue); color: #fff; border: none;">
+                    {% if survey_completed %}Update Survey{% else %}Complete Survey{% endif %}
+                </a>
             </div>
         </div>
     </div>

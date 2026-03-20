@@ -1,0 +1,45 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <h5 class="mb-2">{{ student.get_full_name|default:student.username }}</h5>
+        <div class="small text-secondary mb-1">{{ student.email }}</div>
+        <div class="small text-secondary mb-1">Department: {{ profile.department|default:"-" }}</div>
+        <div class="small text-secondary mb-1">College: {{ profile.college|default:"-" }}</div>
+        <div class="small text-secondary mb-0">Phone: {{ profile.phone|default:"-" }}</div>
+    </div>
+    <div class="col-md-6">
+        <div class="small text-secondary mb-1">Address: {{ profile.address|default:"-" }}</div>
+        <div class="small text-secondary mb-1">DOB: {% if survey and survey.dob %}{{ survey.dob }}{% else %}-{% endif %}</div>
+        <div class="small text-secondary mb-1">Age: {% if survey and survey.age %}{{ survey.age }}{% else %}-{% endif %}</div>
+        <div class="small text-secondary mb-0">Gender: {% if survey and survey.gender %}{{ survey.get_gender_display }}{% else %}-{% endif %}</div>
+    </div>
+
+    <div class="col-12"><hr class="my-1"></div>
+
+    <div class="col-md-6">
+        <h6>Academic Data</h6>
+        <div class="small mb-1">10th score: {% if survey and survey.tenth_score %}{{ survey.tenth_score }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">12th score: {% if survey and survey.twelfth_score %}{{ survey.twelfth_score }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">Attendance: {% if survey and survey.attendance_record %}{{ survey.attendance_record }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">Academic level: {% if survey and survey.academic_level %}{{ survey.get_academic_level_display }}{% else %}-{% endif %}</div>
+        <div class="small mb-0">Course completion rate: {% if survey and survey.course_completion_rate %}{{ survey.course_completion_rate }}{% else %}-{% endif %}</div>
+    </div>
+    <div class="col-md-6">
+        <h6>Behaviour Data</h6>
+        <div class="small mb-1">Study hours: {% if survey and survey.study_hours_daily %}{{ survey.study_hours_daily }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">Gaming hours: {% if survey and survey.gaming_hours %}{{ survey.gaming_hours }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">Social media hours: {% if survey and survey.social_media_hours %}{{ survey.social_media_hours }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">Sleep hours: {% if survey and survey.sleep_hours %}{{ survey.sleep_hours }}{% else %}-{% endif %}</div>
+        <div class="small mb-1">Activities: {% if survey and survey.extra_curricular_activities %}{{ survey.extra_curricular_activities }}{% else %}-{% endif %}</div>
+        <div class="small mb-0">Activity hours: {% if survey and survey.extra_curricular_hours %}{{ survey.extra_curricular_hours }}{% else %}-{% endif %}</div>
+    </div>
+
+    <div class="col-12"><hr class="my-1"></div>
+
+    <div class="col-12">
+        <h6>Auto-tracked Learning</h6>
+        <div class="small mb-1">Courses: {{ learning.total_courses }}</div>
+        <div class="small mb-1">Course contents available: {{ learning.total_contents }}</div>
+        <div class="small mb-1">Quiz attempts: {{ learning.total_attempts }}</div>
+        <div class="small mb-0">Completed quizzes: {{ learning.completed_attempts }} | Online learning activities: {{ learning.online_learning_activities }}</div>
+    </div>
+</div>

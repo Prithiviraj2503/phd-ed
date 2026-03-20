@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Department, Course, CourseContent, Assignment, UserProfile
+from .models import Department, Course, CourseContent, Assignment, UserProfile, StudentSurvey
 
 
 class CourseContentChoiceField(forms.ModelChoiceField):
@@ -19,25 +19,32 @@ class LoginForm(forms.Form):
 
 
 class CreateUserForm(forms.Form):
-    first_name = forms.CharField(max_length=150, required=True)
-    last_name = forms.CharField(max_length=150, required=True)
+    full_name = forms.CharField(max_length=150, required=True)
     email = forms.EmailField(required=True)
+    college = forms.CharField(max_length=255, required=False)
+    address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
     phone = forms.CharField(max_length=20, required=False)
-    department = forms.ModelChoiceField(
-        queryset=Department.objects.all(),
-        required=False,
-        empty_label='Select department'
-    )
+    department = forms.CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):
         self._role = kwargs.pop('role', 'student')
         super().__init__(*args, **kwargs)
         if self._role == 'student':
             self.fields['department'].required = True
+            self.fields['college'].required = True
+            self.fields['address'].required = True
             self.fields['department'].help_text = 'Student will see courses under this department.'
         elif self._role == 'professor':
             self.fields['department'].required = False
             self.fields['department'].help_text = 'Optional: assign the professor to a department.'
+
+
+class BulkStudentUploadForm(forms.Form):
+    file = forms.FileField(
+        required=True,
+        help_text='Upload .xlsx or .csv with Student Name, Email, College, Address, Phone(optional), Department.',
+        label='Student sheet',
+    )
 
 
 class CourseCreateForm(forms.Form):
@@ -85,3 +92,59 @@ class AssignmentCreateForm(forms.Form):
         super().__init__(*args, **kwargs)
         if course is not None:
             self.fields['content_source'].queryset = course.contents.exclude(file='').filter(file__isnull=False).order_by('title')
+
+
+class StudentSurveyForm(forms.ModelForm):
+    class Meta:
+        model = StudentSurvey
+        fields = [
+            'tenth_score',
+            'twelfth_score',
+            'attendance_record',
+            'academic_level',
+            'course_completion_rate',
+            'study_hours_daily',
+            'gaming_hours',
+            'social_media_hours',
+            'sleep_hours',
+            'extra_curricular_activities',
+            'extra_curricular_hours',
+            'dob',
+            'gender',
+        ]
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+            'extra_curricular_activities': forms.TextInput(attrs={'placeholder': 'Sports, Gym, Dance, Singing'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        decimal_help = 'Optional. Enter a number like 85 or 7.5.'
+        self.fields['tenth_score'].label = '10th score'
+        self.fields['twelfth_score'].label = '12th score'
+        self.fields['attendance_record'].label = 'Attendance record'
+        self.fields['course_completion_rate'].label = 'Course completion rate'
+        self.fields['study_hours_daily'].label = 'Study hours (daily)'
+        self.fields['gaming_hours'].label = 'Gaming hours'
+        self.fields['social_media_hours'].label = 'Social media hours'
+        self.fields['sleep_hours'].label = 'Sleep hours'
+        self.fields['extra_curricular_hours'].label = 'Extra curricular hours'
+        self.fields['academic_level'].label = 'Academic level'
+        for name in [
+            'tenth_score',
+            'twelfth_score',
+            'attendance_record',
+            'course_completion_rate',
+            'study_hours_daily',
+            'gaming_hours',
+            'social_media_hours',
+            'sleep_hours',
+            'extra_curricular_hours',
+        ]:
+            self.fields[name].required = False
+            self.fields[name].help_text = decimal_help
+        for name, field in self.fields.items():
+            css_class = 'form-control'
+            if isinstance(field.widget, forms.Select):
+                css_class = 'form-select'
+            field.widget.attrs['class'] = css_class

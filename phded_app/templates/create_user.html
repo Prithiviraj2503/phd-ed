@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-8 col-md-10 mx-auto">
+    <div class="{% if user_role == 'student' %}col-lg-7{% else %}col-lg-8 col-md-10 mx-auto{% endif %}">
         <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
             <h3 class="box-title mb-4">{{ page_title }}</h3>
             <div id="phded-create-user-message" class="mb-3" style="display:none;"></div>
@@ -15,15 +15,10 @@
                 {% csrf_token %}
                 <input type="hidden" name="role" value="{{ user_role }}">
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label" for="id_first_name">First name</label>
-                        <input type="text" id="id_first_name" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" required>
-                        <div class="form-field-error text-danger small" data-field="first_name">{% if form.first_name.errors %}{{ form.first_name.errors.0 }}{% endif %}</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="id_last_name">Last name</label>
-                        <input type="text" id="id_last_name" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" required>
-                        <div class="form-field-error text-danger small" data-field="last_name">{% if form.last_name.errors %}{{ form.last_name.errors.0 }}{% endif %}</div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_full_name">{% if user_role == 'student' %}Student Name{% else %}Full name{% endif %}</label>
+                        <input type="text" id="id_full_name" name="full_name" class="form-control" value="{{ form.full_name.value|default:'' }}" required>
+                        <div class="form-field-error text-danger small" data-field="full_name">{% if form.full_name.errors %}{{ form.full_name.errors.0 }}{% endif %}</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label" for="id_email">Email</label>
@@ -31,23 +26,24 @@
                         <div class="form-field-error text-danger small" data-field="email">{% if form.email.errors %}{{ form.email.errors.0 }}{% endif %}</div>
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label" for="id_college">College</label>
+                        <input type="text" id="id_college" name="college" class="form-control" value="{{ form.college.value|default:'' }}" {% if user_role == 'student' %}required{% endif %}>
+                        <div class="form-field-error text-danger small" data-field="college">{% if form.college.errors %}{{ form.college.errors.0 }}{% endif %}</div>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label" for="id_phone">Phone</label>
                         <input type="text" id="id_phone" name="phone" class="form-control" value="{{ form.phone.value|default:'' }}" placeholder="Optional">
                         <div class="form-field-error text-danger small" data-field="phone">{% if form.phone.errors %}{{ form.phone.errors.0 }}{% endif %}</div>
                     </div>
+                    <div class="col-12">
+                        <label class="form-label" for="id_address">Address</label>
+                        <textarea id="id_address" name="address" class="form-control" rows="3" {% if user_role == 'student' %}required{% endif %}>{{ form.address.value|default:'' }}</textarea>
+                        <div class="form-field-error text-danger small" data-field="address">{% if form.address.errors %}{{ form.address.errors.0 }}{% endif %}</div>
+                    </div>
                     <div class="col-md-6">
                         <label class="form-label" for="id_department">Department</label>
-                        {% if user_role == 'student' %}
-                        <select id="id_department" name="department" class="form-control" required>
-                            <option value="">Select department (IT/CSE)</option>
-                            {% for d in form.department.field.queryset %}
-                            <option value="{{ d.pk }}" {% if form.department.value == d.pk %}selected{% endif %}>{{ d.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <p class="form-text small text-secondary mb-0">Student will see courses under this department.</p>
-                        {% else %}
-                        <input type="text" id="id_department" name="department" class="form-control" value="{{ form.department.value|default:'' }}" placeholder="Optional">
-                        {% endif %}
+                        <input type="text" id="id_department" name="department" class="form-control" value="{{ form.department.value|default:'' }}" {% if user_role == 'student' %}required{% endif %} placeholder="{% if user_role == 'student' %}Example: IT or CSE{% else %}Optional{% endif %}">
+                        <p class="form-text small text-secondary mb-0">{% if user_role == 'student' %}Department will be created automatically if it does not already exist.{% else %}Optional: assign the professor to a department.{% endif %}</p>
                         <div class="form-field-error text-danger small" data-field="department">{% if form.department.errors %}{{ form.department.errors.0 }}{% endif %}</div>
                     </div>
                     <div class="col-12">
@@ -61,5 +57,23 @@
             </form>
         </div>
     </div>
+    {% if user_role == 'student' %}
+    <div class="col-lg-5 mt-4 mt-lg-0">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 2rem; border: 1px solid var(--nk-border-subtle);">
+            <h3 class="box-title mb-3">Bulk Upload Students</h3>
+            <div id="phded-bulk-upload-message" class="mb-3" style="display:none;"></div>
+            <form id="phded-bulk-student-upload-form" method="post" action="{% url 'phded_app:bulk_student_upload' %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="id_bulk_file">Student Sheet</label>
+                    <input type="file" id="id_bulk_file" name="file" class="form-control" accept=".xlsx,.csv" required>
+                    <div class="form-field-error text-danger small" data-field="file">{% if bulk_form.file.errors %}{{ bulk_form.file.errors.0 }}{% endif %}</div>
+                </div>
+                <p class="text-secondary small">Expected columns: Student Name, Email, College, Address, Phone(optional), Department. Existing emails will be skipped automatically.</p>
+                <button type="submit" class="btn" style="background: var(--nk-accent-teal); color: #fff; border: none;">Upload and Create</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

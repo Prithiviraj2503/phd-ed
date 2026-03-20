@@ -1,0 +1,53 @@
+<div class="row g-4">
+    <div class="col-12">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h3 class="box-title mb-1">{{ page_title }}</h3>
+                    <p class="text-secondary mb-0">{{ page_subtitle }}</p>
+                </div>
+                <a href="{% url 'phded_app:student_survey_export' %}" class="btn" style="background: var(--nk-accent-teal); color: #fff; border: none;">Bulk Download</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="white-box" style="background: var(--nk-bg-surface); border-radius: var(--nk-radius-lg); padding: 1.5rem; border: 1px solid var(--nk-border-subtle);">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Academic Level</th>
+                            <th>Attendance</th>
+                            <th>Online Activities</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in survey_rows %}
+                        <tr>
+                            <td>{{ row.student.get_full_name|default:row.student.username }}</td>
+                            <td>{{ row.student.email }}</td>
+                            <td>{{ row.profile.department|default:"-" }}</td>
+                            <td>{% if row.survey and row.survey.academic_level %}{{ row.survey.get_academic_level_display }}{% else %}-{% endif %}</td>
+                            <td>{% if row.survey and row.survey.attendance_record %}{{ row.survey.attendance_record }}{% else %}-{% endif %}</td>
+                            <td>{{ row.learning.online_learning_activities }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm phded-student-survey-detail-btn" data-detail-url="{% url 'phded_app:student_survey_detail' row.student.id %}" style="background: var(--nk-accent-blue); color: #fff; border: none;">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-secondary">No student survey records found yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
